@@ -39,15 +39,20 @@ public class Client extends PHPFunctions{
 	public static String UC_DATAURL = "UC_API"+"/data";			//note 用户中心的数据 URL
 	public static String UC_API_FUNC = UC_CONNECT.equals("mysql") ? "uc_api_mysql" : "uc_api_post";
 	public static String[] uc_controls = {};
-	
+
 	static {
-
-			UC_API = PropertyUtil.getProperty("UC_API");
-			UC_IP = PropertyUtil.getProperty("UC_IP");
-			UC_KEY = PropertyUtil.getProperty("UC_KEY");
-			UC_APPID = PropertyUtil.getProperty("UC_APPID");
-			UC_CONNECT = PropertyUtil.getProperty("UC_CONNECT","");
-
+		InputStream in = Client.class.getClassLoader().getResourceAsStream("config.properties");
+		Properties properties = new Properties();
+		try {
+			properties.load(in);
+			UC_API = properties.getProperty("UC_API");
+			UC_IP = properties.getProperty("UC_IP");
+			UC_KEY = properties.getProperty("UC_KEY");
+			UC_APPID = properties.getProperty("UC_APPID");
+			UC_CONNECT = properties.getProperty("UC_CONNECT");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	protected String uc_serialize(String $arr, int $htmlon) {
