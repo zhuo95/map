@@ -32,21 +32,22 @@ public class EventServiceImpl implements IEventService {
 
     //获取当前地址周围的有事件的event
     public ServerResponse getByLatitudeAndLongitude(Double latitude, Double longitude){
-       Double laLow = latitude - Const.RADIUS;
-       Double laHigh = latitude + Const.RADIUS;
-       Double loLow = longitude - Const.RADIUS;
-       Double loHigh = longitude + Const.RADIUS;
+        if(latitude==null||longitude==null) return ServerResponse.creatByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        Double laLow = latitude - Const.RADIUS;
+        Double laHigh = latitude + Const.RADIUS;
+        Double loLow = longitude - Const.RADIUS;
+        Double loHigh = longitude + Const.RADIUS;
 
-       List<Place> places = placeRepository.findAllByLatitudeGreaterThanAndLatitudeLessThanAndLongitudeGreaterThanAndLongitudeLessThan(laLow,laHigh,loLow,loHigh);
+        List<Place> places = placeRepository.findAllByLatitudeGreaterThanAndLatitudeLessThanAndLongitudeGreaterThanAndLongitudeLessThan(laLow,laHigh,loLow,loHigh);
 
-       return ServerResponse.creatBySuccess(places);
+        return ServerResponse.creatBySuccess(places);
     }
 
     //提交event
     @Transactional
     public ServerResponse postEvent(Event event){
         if(event.getCategory()==null||event.getCategory()>4||event.getCategory()<0||
-                event.getAddress()==null||event.getExpireDays()==null||event.getDate()==null){
+                event.getAddress()==null||event.getExpireDays()==null||event.getDate()==null||event.getLatitude()==null||event.getLongitude()==null){
             return ServerResponse.creatByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
         Date now = new Date();

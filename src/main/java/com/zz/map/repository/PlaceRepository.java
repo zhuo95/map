@@ -1,6 +1,6 @@
 package com.zz.map.repository;
 
-import com.sun.xml.internal.bind.v2.model.core.ID;
+
 import com.zz.map.entity.Place;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;

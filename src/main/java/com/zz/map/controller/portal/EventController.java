@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/event")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*",allowCredentials ="true")
 public class EventController {
 
     @Autowired
@@ -39,7 +39,7 @@ public class EventController {
         return iEventService.getEventByPlaceId(placeId,pageIndex,pageSize);
     }
 
-    //按照时间id查找
+    //按照事件id查找
     @GetMapping("/{id}")
     @ResponseBody
     public ServerResponse getEventById(@PathVariable("id") Long id){

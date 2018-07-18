@@ -15,7 +15,7 @@ import java.util.LinkedList;
 
 @Controller
 @RequestMapping("/user")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*",allowCredentials = "true")
 public class UserController {
 
 
