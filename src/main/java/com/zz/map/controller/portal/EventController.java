@@ -27,7 +27,44 @@ public class EventController {
     @PostMapping
     @ResponseBody
     public ServerResponse postEvent(Event event){
-        return null;
-        //TODO
+        return iEventService.postEvent(event);
+    }
+
+
+    @GetMapping("/place/{id}")
+    @ResponseBody
+    public ServerResponse getEventByPlaceId(@PathVariable("id") String placeId,
+                                            @RequestParam(value = "pageIndex",defaultValue ="0") int pageIndex,
+                                            @RequestParam(value = "pageSize",defaultValue = "10")int pageSize){
+        return iEventService.getEventByPlaceId(placeId,pageIndex,pageSize);
+    }
+
+    //按照时间id查找
+    @GetMapping("/{id}")
+    @ResponseBody
+    public ServerResponse getEventById(@PathVariable("id") Long id){
+        return iEventService.getEventById(id);
+    }
+
+    //分类查找
+    @GetMapping("/category/{id}")
+    public ServerResponse getEventByCategory(@PathVariable("id") Integer category,
+                                             @RequestParam(value = "pageIndex",defaultValue ="0") int pageIndex,
+                                             @RequestParam(value = "pageSize",defaultValue = "10")int pageSize){
+        return iEventService.getEventByCategory(category,pageIndex,pageSize);
+    }
+
+    //删除event
+    @DeleteMapping("/{id}")
+    @ResponseBody
+    public ServerResponse deleteEventById(@PathVariable("id") Long id){
+        return iEventService.deleteEventById(id);
+    }
+
+    //更新event
+    @PatchMapping("/{id}")
+    @ResponseBody
+    public ServerResponse updateEventById(@PathVariable("id") Long id,Event event){
+        return iEventService.updateEventById(id,event);
     }
 }

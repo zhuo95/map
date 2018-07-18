@@ -20,8 +20,7 @@ import java.util.Date;
 public class Place {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String placeName;
 

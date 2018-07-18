@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -17,9 +17,10 @@ import java.util.Date;
 @AllArgsConstructor
 public class Event {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long placeId;
+    private String placeId;
 
     private Long userId;
 
@@ -35,10 +36,19 @@ public class Event {
 
     private String description;
 
+    //活动日期
+    @DateTimeFormat(pattern = "yyyy-MM-ddHH:mm")
+    private Date date;
+
     private Date createTime;
 
+    //用于计算过期时间
     private Integer expireDays;
 
+    //CLOSE/OPEN
+    private Integer status;
+
+    //计算的expireTime
     private Date expireTime;
 
     private Date updateTime;

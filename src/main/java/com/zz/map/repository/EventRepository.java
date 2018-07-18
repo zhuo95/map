@@ -5,6 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Date;
+import java.util.List;
+
 public interface EventRepository extends JpaRepository<Event,Long> {
-    Page<Event> findAllByPlaceId(Long placeId, Pageable pageable);
+    List<Event> findAllByPlaceIdAndExpireTimeAfterAndStatus(String placeId, Date date,int status);
+
+    Page<Event> findAllByCategoryAndExpireTimeAfterAndStatus(Integer category,Date date,int status ,Pageable pageable);
 }

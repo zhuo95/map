@@ -4,6 +4,8 @@ import com.zz.map.common.RedisShardedPool;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.ShardedJedis;
 
+import java.util.Map;
+
 @Slf4j
 public class RedisShardedPoolUtil {
 
@@ -124,6 +126,75 @@ public class RedisShardedPoolUtil {
         RedisShardedPool.returnResource(jedis);
         return result;
     }
+
+    //hset hash数据结构 如果set成功返回1
+    public static Long hset(String key,String field,String value){
+        ShardedJedis jedis = null;
+        Long result = null;
+
+        jedis = RedisShardedPool.getJedis();
+        try{
+            result = jedis.hset(key,field,value);
+        }catch (Exception e){
+            log.error("hset key:{} field:{} value:{}",key,field,value,e);
+            RedisShardedPool.returnResource(jedis);
+            return result;
+        }
+        RedisShardedPool.returnResource(jedis);
+        return result;
+    }
+
+    //hgetall
+    public static Map<String,String> hgetall(String key){
+        ShardedJedis jedis = null;
+        Map<String,String>  result = null;
+
+        jedis = RedisShardedPool.getJedis();
+        try{
+            result = jedis.hgetAll(key);
+        }catch (Exception e){
+            log.error("hexist key:{}",key,e);
+            RedisShardedPool.returnResource(jedis);
+            return result;
+        }
+        RedisShardedPool.returnResource(jedis);
+        return result;
+    }
+
+    //hdel 失败是返回0,成功1
+    public static Long hdel(String key,String field){
+        ShardedJedis jedis = null;
+        Long result = null;
+
+        jedis = RedisShardedPool.getJedis();
+        try{
+            result = jedis.hdel(key,field);
+        }catch (Exception e){
+            log.error("hdel key:{} field:{}",key,field,e);
+            RedisShardedPool.returnResource(jedis);
+            return result;
+        }
+        RedisShardedPool.returnResource(jedis);
+        return result;
+    }
+
+
+    public static String hget(String key ,String field){
+        ShardedJedis jedis = null;
+        String result = null;
+
+        jedis = RedisShardedPool.getJedis();
+        try{
+            result = jedis.hget(key,field);
+        }catch (Exception e){
+            log.error("hdel key:{} field:{}",key,field,e);
+            RedisShardedPool.returnResource(jedis);
+            return result;
+        }
+        RedisShardedPool.returnResource(jedis);
+        return result;
+    }
+
 
 
 }

@@ -1,7 +1,6 @@
 package com.zz.map.controller.portal;
 
 import com.zz.map.common.ServerResponse;
-import com.zz.map.util.CookieUtil;
 import com.zz.map.util.ucenterUtil.client.Client;
 import com.zz.map.util.ucenterUtil.util.XMLHelper;
 import org.springframework.stereotype.Controller;

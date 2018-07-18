@@ -1,6 +1,4 @@
 package com.zz.map.util.ucenterUtil.client;
-import com.zz.map.util.PropertyUtil;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +29,7 @@ public class Client extends PHPFunctions{
 	public static String UC_API = "http://localhost/uc";
 	public static String UC_CONNECT = "";
 	public static String UC_KEY = "123456";
-	public static String UC_APPID = "27";
+	public static String UC_APPID = "3";
 	public static String UC_CLIENT_VERSION = "1.0";
 	public static String UC_CLIENT_RELEASE = "20090212";
 	public static String UC_ROOT = "";		//note 用户中心客户端的根目录 UC_CLIENTROOT
@@ -39,11 +37,11 @@ public class Client extends PHPFunctions{
 	public static String UC_DATAURL = "UC_API"+"/data";			//note 用户中心的数据 URL
 	public static String UC_API_FUNC = UC_CONNECT.equals("mysql") ? "uc_api_mysql" : "uc_api_post";
 	public static String[] uc_controls = {};
-
+	
 	static {
-		InputStream in = Client.class.getClassLoader().getResourceAsStream("config.properties");
-		Properties properties = new Properties();
-		try {
+	    InputStream in = Client.class.getClassLoader().getResourceAsStream("config.properties");
+	    Properties properties = new Properties();
+	    try {
 			properties.load(in);
 			UC_API = properties.getProperty("UC_API");
 			UC_IP = properties.getProperty("UC_IP");
@@ -65,7 +63,7 @@ public class Client extends PHPFunctions{
 		//return xml_unserialize($s);
 		return $s;
 	}
-
+	
 	protected String uc_addslashes(String $string, int $force , boolean $strip ) {
 //		!defined('MAGIC_QUOTES_GPC') && define('MAGIC_QUOTES_GPC', get_magic_quotes_gpc());
 //		if(!MAGIC_QUOTES_GPC || $force) {
