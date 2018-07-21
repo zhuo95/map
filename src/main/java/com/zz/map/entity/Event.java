@@ -24,6 +24,10 @@ public class Event {
 
     private Long userId;
 
+    private String title;
+
+    private String contact;
+
     private String userName;
 
     private String address;
@@ -37,8 +41,7 @@ public class Event {
     private String description;
 
     //活动日期
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    private Date date;
+    private String date;
 
     private Date createTime;
 

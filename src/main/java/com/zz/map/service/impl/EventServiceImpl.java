@@ -18,6 +18,8 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,10 +53,19 @@ public class EventServiceImpl implements IEventService {
             return ServerResponse.creatByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
         Date now = new Date();
+        //处理date和过期时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+        Date date = null;
+        try{
+            date = sdf.parse(event.getDate());
+        }catch (ParseException e){
+            return ServerResponse.creatByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+
         event.setCreateTime(now);
         event.setUpdateTime(now);
         event.setStatus(Const.EVENT_STATUS.OPEN);
-        event.setExpireTime(DateUtils.addDays(event.getDate(),event.getExpireDays()));
+        event.setExpireTime(DateUtils.addDays(date,event.getExpireDays()));
 //        event.setUserId(user.getId());
 //        event.setUserName(user.getNickName());
         //查看是否有place，求出id
@@ -160,11 +171,23 @@ public class EventServiceImpl implements IEventService {
             //不在缓存中,取数据库取
             e = eventRepository.findById(id).orElse(null);
         }
+        if(event.getDate()!=null){
+            //需要修改过期时间
+            //处理date
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+
+            Date date = null;
+            try{
+                date = sdf.parse(event.getDate());
+            }catch (ParseException ex){
+                return ServerResponse.creatByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+            }
+            //重新设置过期时间
+            event.setExpireTime(DateUtils.addDays(date,event.getExpireDays()));
+        }
         //更新非空fields
         UpdateUtil.copyNullProperties(e,event);
         event.setUpdateTime(new Date());
-        //重新设置过期时间
-        event.setExpireTime(DateUtils.addDays(event.getDate(),event.getExpireDays()));
         //更新redis
         RedisShardedPoolUtil.hset(event.getPlaceId(),String.valueOf(id),JsonUtil.obj2String(event));
         //更新过期时间
