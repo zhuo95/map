@@ -4,6 +4,7 @@ import com.zz.map.common.RedisShardedPool;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.ShardedJedis;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -195,6 +196,56 @@ public class RedisShardedPoolUtil {
         return result;
     }
 
+    //list push
+    public static Long lpush(String key,String value){
+        ShardedJedis jedis = null;
+        Long result = null;
+
+        jedis = RedisShardedPool.getJedis();
+        try{
+            result = jedis.lpush(key,value);
+        }catch (Exception e){
+            log.error("lpush key:{} field:{}",key,value,e);
+            RedisShardedPool.returnResource(jedis);
+            return result;
+        }
+        RedisShardedPool.returnResource(jedis);
+        return result;
+    }
+
+    //list length
+    public static Long llen(String key){
+        ShardedJedis jedis = null;
+        Long result = null;
+
+        jedis = RedisShardedPool.getJedis();
+        try{
+            result = jedis.llen(key);
+        }catch (Exception e){
+            log.error("llen key:{}",key,e);
+            RedisShardedPool.returnResource(jedis);
+            return result;
+        }
+        RedisShardedPool.returnResource(jedis);
+        return result;
+    }
+
+    //list get range
+    public static List lrange(String key,Long start,Long to){
+        ShardedJedis jedis = null;
+        List result = null;
+
+        jedis = RedisShardedPool.getJedis();
+        try{
+            result = jedis.lrange(key,start,to);
+        }catch (Exception e){
+            log.error("llen key:{}",key,e);
+            RedisShardedPool.returnResource(jedis);
+            return result;
+        }
+        RedisShardedPool.returnResource(jedis);
+        return result;
+    }
 
 
 }

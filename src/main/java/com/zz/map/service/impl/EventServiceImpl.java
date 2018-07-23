@@ -8,9 +8,8 @@ import com.zz.map.entity.Place;
 import com.zz.map.repository.EventRepository;
 import com.zz.map.repository.PlaceRepository;
 import com.zz.map.service.IEventService;
-import com.zz.map.util.JsonUtil;
-import com.zz.map.util.RedisShardedPoolUtil;
-import com.zz.map.util.UpdateUtil;
+import com.zz.map.util.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +19,10 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("IEventService")
+@Slf4j
 public class EventServiceImpl implements IEventService {
     @Autowired
     private PlaceRepository placeRepository;
@@ -102,8 +99,8 @@ public class EventServiceImpl implements IEventService {
 
 
     //按照placeId获取event
-    public ServerResponse<Page> getEventByPlaceId(String placeId,int pageIndex,int pageSize){
-        Pageable pageable = PageRequest.of(pageIndex,pageSize);
+    public ServerResponse<List> getEventByPlaceId(String placeId){
+
         //先到redis中找
         Map<String,String> eventsJsonStr = RedisShardedPoolUtil.hgetall(placeId);
         List<Event> lis = new ArrayList<>();
@@ -112,8 +109,7 @@ public class EventServiceImpl implements IEventService {
                 Event e = JsonUtil.string2Obj(eventJson,Event.class);
                 lis.add(e);
             }
-            Page<Event> es = new PageImpl<Event>(lis,pageable,lis.size());
-            return ServerResponse.creatBySuccess(es);
+            return ServerResponse.creatBySuccess(lis);
         }
         //redis中找不到
         List<Event> events = eventRepository.findAllByPlaceIdAndExpireTimeAfterAndStatus(placeId,new Date(),Const.EVENT_STATUS.OPEN);
@@ -121,9 +117,8 @@ public class EventServiceImpl implements IEventService {
         for(Event e : events){
             RedisShardedPoolUtil.hset(placeId,String.valueOf(e.getId()),JsonUtil.obj2String(e));
         }
-        Page<Event> eventsPage = new PageImpl<Event>(events,pageable,events.size());
-        if(eventsPage.getTotalElements()==0) return ServerResponse.creatByErrorMessage("没有活动");
-        return ServerResponse.creatBySuccess(eventsPage);
+
+        return ServerResponse.creatBySuccess(events);
     }
 
     //按照eventId 查找

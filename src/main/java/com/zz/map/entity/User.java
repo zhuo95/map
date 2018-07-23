@@ -18,31 +18,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer gender;
+    private Long uid;
 
-    private String nickName;
+    private Integer gender;
 
     private String avatar;
 
-    @Column(length = 50)
     private String username;
 
-    @Column(length = 50)
-    private String email;
-
-    @Column(length = 50)
-    private String contactInfo;
-
-    @Column(length = 100)
     private String password;
 
-    @Column(length = 100)
-    private String question;
+    private String email;
 
-    @Column(length = 100)
-    private String answer;
-
-    private Integer role;
+    //临时记录，没有啥用
+    private String token;
 
     private Date createTime;
 

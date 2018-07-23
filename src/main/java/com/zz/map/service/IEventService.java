@@ -4,13 +4,15 @@ import com.zz.map.common.ServerResponse;
 import com.zz.map.entity.Event;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface IEventService {
 
     ServerResponse getByLatitudeAndLongitude(Double latitude, Double longitude);
 
     ServerResponse postEvent(Event event);
 
-    ServerResponse<Page> getEventByPlaceId(String placeId, int pageIndex, int pageSize);
+    ServerResponse<List> getEventByPlaceId(String placeId);
 
     ServerResponse<Event> getEventById(Long id);
 
