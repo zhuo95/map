@@ -28,7 +28,7 @@ public class UserController {
     public ServerResponse login(String username, String password, HttpServletResponse response, HttpServletRequest request){
         //如果有token,先验证token
         String token = CookieUtil.readLoginToken(request);
-        if(StringUtils.isNotBlank(token)){
+        if(StringUtils.isNotBlank(token)&&StringUtils.isEmpty(username)&&StringUtils.isEmpty(password)){
             String userJson = RedisShardedPoolUtil.get(token);
             User user = JsonUtil.string2Obj(userJson,User.class);
             if(user!=null) return ServerResponse.creatBySuccess(user);
