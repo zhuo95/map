@@ -5,6 +5,7 @@ import com.zz.map.common.ResponseCode;
 import com.zz.map.common.ServerResponse;
 import com.zz.map.entity.Event;
 import com.zz.map.entity.Place;
+import com.zz.map.entity.User;
 import com.zz.map.repository.EventRepository;
 import com.zz.map.repository.PlaceRepository;
 import com.zz.map.service.IEventService;
@@ -44,7 +45,7 @@ public class EventServiceImpl implements IEventService {
 
     //提交event
     @Transactional
-    public ServerResponse postEvent(Event event){
+    public ServerResponse postEvent(Event event,User user){
         if(event.getCategory()==null||event.getCategory()>4||event.getCategory()<0||
                 event.getAddress()==null||event.getExpireDays()==null||event.getDate()==null||event.getLatitude()==null||event.getLongitude()==null){
             return ServerResponse.creatByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
@@ -63,8 +64,8 @@ public class EventServiceImpl implements IEventService {
         event.setUpdateTime(now);
         event.setStatus(Const.EVENT_STATUS.OPEN);
         event.setExpireTime(DateUtils.addDays(date,event.getExpireDays()));
-//        event.setUserId(user.getId());
-//        event.setUserName(user.getNickName());
+        event.setUserId(user.getId());
+        event.setUserName(user.getUsername());
         //查看是否有place，求出id
         String lon = String.valueOf(event.getLongitude());
         String la = String.valueOf(event.getLatitude());
@@ -138,9 +139,11 @@ public class EventServiceImpl implements IEventService {
 
     //按照event ID 删除
     @Transactional
-    public ServerResponse deleteEventById(Long id){
+    public ServerResponse deleteEventById(Long id,User user){
         Event event = eventRepository.findById(id).orElse(null);
         if(event==null) return ServerResponse.creatByErrorMessage("没有该活动");
+        Long userid = event.getUserId();
+        if(!user.getId().equals(userid)) return ServerResponse.creatByErrorMessage("没有权限");
         Date now = new Date();
         event.setStatus(Const.EVENT_STATUS.CLOSE);
         event.setUpdateTime(now);
@@ -158,7 +161,7 @@ public class EventServiceImpl implements IEventService {
     }
 
     //Update
-    public ServerResponse<Event> updateEventById(Long id,Event event){
+    public ServerResponse<Event> updateEventById(Long id,Event event,Long userId){
         if(StringUtils.isBlank(event.getPlaceId())) return ServerResponse.creatByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         String eventJson = RedisShardedPoolUtil.hget(event.getPlaceId(),String.valueOf(id));
         Event e = JsonUtil.string2Obj(eventJson,Event.class);
@@ -166,6 +169,7 @@ public class EventServiceImpl implements IEventService {
             //不在缓存中,取数据库取
             e = eventRepository.findById(id).orElse(null);
         }
+        if(!userId.equals(e.getUserId())) return ServerResponse.creatByErrorMessage("没有权限");
         if(event.getDate()!=null){
             //需要修改过期时间
             //处理date
@@ -190,6 +194,13 @@ public class EventServiceImpl implements IEventService {
         //存到数据库
         eventRepository.save(event);
         return ServerResponse.creatBySuccess(event);
+    }
+
+
+    //查找当前登录对象的发布信息
+    public ServerResponse findInfo(Long userId){
+        List<Event> events = eventRepository.findAllByUserId(userId);
+        return ServerResponse.creatBySuccess(events);
     }
 
 

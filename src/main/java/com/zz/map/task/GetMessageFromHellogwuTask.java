@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Component
@@ -23,7 +24,7 @@ public class GetMessageFromHellogwuTask {
         RedisShardedPoolUtil.del(Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK); //释放分布式锁
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 0 */6 * * ?")
     public void closeOrderTask(){
       log.info("开始定时任务");
       long lockTimeout = Long.parseLong(PropertyUtil.getProperty("lock.timeout","5000"));
@@ -76,7 +77,10 @@ public class GetMessageFromHellogwuTask {
                     Map<String,Object> cur = (Map)events.get(j);
                     SellEvent e = new SellEvent();
                     e.setTid(Long.valueOf((Integer) cur.get("tid")));
-                    e.setCreateTime(new Date(Long.valueOf((Integer)cur.get("dateline"))));
+                    e.setCreateTime(new Date(Long.valueOf((Integer)cur.get("dateline"))*1000));
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String publishDate = sdf.format(e.getCreateTime());
+                    e.setPublishDate(publishDate);
                     sells.add(e);
                 }
             }else log.error("读取hellogwu错误");
@@ -111,6 +115,9 @@ public class GetMessageFromHellogwuTask {
                 sellEvent.setSubject(subject);
             }
         }
+        RedisShardedPoolUtil.del("Washington DC");
+        RedisShardedPoolUtil.del("Maryland");
+        RedisShardedPoolUtil.del("Virginia");
         //将sells存入redis 保存一天 第二天重新load
         for(SellEvent event : sells){
             String address = event.getAddress();
@@ -118,12 +125,13 @@ public class GetMessageFromHellogwuTask {
             if(StringUtils.isNotEmpty(address))RedisShardedPoolUtil.lpush(address,eventJson);
         }
         //设置过期时间
-        RedisShardedPoolUtil.expire("Washington DC",60*60*23);
-        RedisShardedPoolUtil.expire("Maryland",60*60*23);
-        RedisShardedPoolUtil.expire("Virginia",60*60*23);
+        RedisShardedPoolUtil.expire("Washington DC",60*60*6);
+        RedisShardedPoolUtil.expire("Maryland",60*60*6);
+        RedisShardedPoolUtil.expire("Virginia",60*60*6);
     }
 
 //    public static void main(String[] args) {
-//        getEvent();
+//        GetMessageFromHellogwuTask test = new GetMessageFromHellogwuTask();
+//        test.getEvent();
 //    }
 }

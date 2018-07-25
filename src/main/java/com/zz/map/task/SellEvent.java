@@ -19,6 +19,8 @@ public class SellEvent {
 
     private Long uid;
 
+    private String publishDate;
+
     private Date createTime;
 
     private String subject;

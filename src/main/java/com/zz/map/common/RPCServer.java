@@ -5,6 +5,7 @@ import com.zz.map.util.HTTPSUtil;
 import com.zz.map.util.PropertyUtil;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 
@@ -29,13 +30,16 @@ public class RPCServer {
         String[] args = message.split(",");
         String username = args[0];
         String password = args[1];
-        Map<String,String> argsMap = new HashMap<>();
-        argsMap.put("username",username);
-        argsMap.put("password",password);
-        argsMap.put("mod","member");
-        argsMap.put("act","login");
-        argsMap.put("vister_token", PropertyUtil.getProperty("vister_token"));
-        String res = HTTPSUtil.doPost(PropertyUtil.getProperty("api_url"),argsMap,"utf-8");
-        return res;
+        if(StringUtils.isNotBlank(username)&&StringUtils.isNotBlank(password)){
+            Map<String,String> argsMap = new HashMap<>();
+            argsMap.put("username",username);
+            argsMap.put("password",password);
+            argsMap.put("mod","member");
+            argsMap.put("act","login");
+            argsMap.put("vister_token", PropertyUtil.getProperty("vister_token"));
+            String res = HTTPSUtil.doPost(PropertyUtil.getProperty("api_url"),argsMap,"utf-8");
+            return res;
+        }
+        return null;
     }
 }

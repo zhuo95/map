@@ -12,4 +12,6 @@ public interface EventRepository extends JpaRepository<Event,Long> {
     List<Event> findAllByPlaceIdAndExpireTimeAfterAndStatus(String placeId, Date date,int status);
 
     Page<Event> findAllByCategoryAndExpireTimeAfterAndStatus(Integer category,Date date,int status ,Pageable pageable);
+
+    List<Event> findAllByUserId(Long userId);
 }

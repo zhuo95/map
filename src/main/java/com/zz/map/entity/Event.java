@@ -26,8 +26,6 @@ public class Event {
 
     private String title;
 
-    private String contact;
-
     private String userName;
 
     private String address;

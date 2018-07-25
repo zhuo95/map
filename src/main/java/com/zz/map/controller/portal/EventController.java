@@ -4,14 +4,18 @@ package com.zz.map.controller.portal;
 import com.zz.map.common.ResponseCode;
 import com.zz.map.common.ServerResponse;
 import com.zz.map.entity.Event;
+import com.zz.map.entity.User;
 import com.zz.map.service.IEventService;
 import com.zz.map.task.SellEvent;
+import com.zz.map.util.CookieUtil;
 import com.zz.map.util.JsonUtil;
 import com.zz.map.util.RedisShardedPoolUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +37,16 @@ public class EventController {
 
     @PostMapping
     @ResponseBody
-    public ServerResponse postEvent(Event event){
-        return iEventService.postEvent(event);
+    public ServerResponse postEvent(Event event,HttpServletRequest request){
+        //判断session
+        String loginToken = CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.creatByErrorCodeMessage(ResponseCode.NEEDLOG_IN.getCode(),ResponseCode.NEEDLOG_IN.getDesc());
+        }
+        String userJsonStr = RedisShardedPoolUtil.get(loginToken);
+        User user = JsonUtil.string2Obj(userJsonStr,User.class);
+        if(user==null) return ServerResponse.creatByErrorCodeMessage(ResponseCode.NEEDLOG_IN.getCode(),ResponseCode.NEEDLOG_IN.getDesc());
+        return iEventService.postEvent(event,user);
     }
 
 
@@ -63,15 +75,31 @@ public class EventController {
     //删除event
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ServerResponse deleteEventById(@PathVariable("id") Long id){
-        return iEventService.deleteEventById(id);
+    public ServerResponse deleteEventById(@PathVariable("id") Long id,HttpServletRequest request){
+        //判断session
+        String loginToken = CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.creatByErrorCodeMessage(ResponseCode.NEEDLOG_IN.getCode(),ResponseCode.NEEDLOG_IN.getDesc());
+        }
+        String userJsonStr = RedisShardedPoolUtil.get(loginToken);
+        User user = JsonUtil.string2Obj(userJsonStr,User.class);
+        if(user==null)  return ServerResponse.creatByErrorCodeMessage(ResponseCode.NEEDLOG_IN.getCode(),ResponseCode.NEEDLOG_IN.getDesc());
+        return iEventService.deleteEventById(id,user);
     }
 
     //更新event
     @PatchMapping("/{id}")
     @ResponseBody
-    public ServerResponse updateEventById(@PathVariable("id") Long id,Event event){
-        return iEventService.updateEventById(id,event);
+    public ServerResponse updateEventById(@PathVariable("id") Long id,Event event,HttpServletRequest request){
+        //判断session
+        String loginToken = CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.creatByErrorCodeMessage(ResponseCode.NEEDLOG_IN.getCode(),ResponseCode.NEEDLOG_IN.getDesc());
+        }
+        String userJsonStr = RedisShardedPoolUtil.get(loginToken);
+        User user = JsonUtil.string2Obj(userJsonStr,User.class);
+        if(user==null)  return ServerResponse.creatByErrorCodeMessage(ResponseCode.NEEDLOG_IN.getCode(),ResponseCode.NEEDLOG_IN.getDesc());
+        return iEventService.updateEventById(id,event,user.getId());
     }
 
     //查找sell
@@ -112,5 +140,19 @@ public class EventController {
             return ServerResponse.creatBySuccess(events);
         }
         return ServerResponse.creatByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+    }
+
+    @GetMapping("/my")
+    @ResponseBody
+    public ServerResponse getMyEvents(HttpServletRequest request){
+        //判断session
+        String loginToken = CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)){
+            return ServerResponse.creatByErrorCodeMessage(ResponseCode.NEEDLOG_IN.getCode(),ResponseCode.NEEDLOG_IN.getDesc());
+        }
+        String userJsonStr = RedisShardedPoolUtil.get(loginToken);
+        User user = JsonUtil.string2Obj(userJsonStr,User.class);
+        if(user==null) return ServerResponse.creatByErrorCodeMessage(ResponseCode.NEEDLOG_IN.getCode(),ResponseCode.NEEDLOG_IN.getDesc());
+        return iEventService.findInfo(user.getId());
     }
 }

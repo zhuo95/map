@@ -7,4 +7,6 @@ public interface IUserService {
     ServerResponse<User> login(String username, String password);
 
     ServerResponse signup(User user);
+
+    ServerResponse checkEmail(String email);
 }
