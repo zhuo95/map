@@ -141,7 +141,7 @@ public class EventServiceImpl implements IEventService {
     @Transactional
     public ServerResponse deleteEventById(Long id,User user){
         Event event = eventRepository.findById(id).orElse(null);
-        if(event==null) return ServerResponse.creatByErrorMessage("没有该活动");
+        if(event==null||event.getStatus()==Const.EVENT_STATUS.CLOSE) return ServerResponse.creatByErrorMessage("没有该活动");
         Long userid = event.getUserId();
         if(!user.getId().equals(userid)) return ServerResponse.creatByErrorMessage("没有权限");
         Date now = new Date();
