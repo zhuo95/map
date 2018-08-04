@@ -100,7 +100,7 @@ public class GetMessageFromHellogwuTask {
             Map<String,Object> map = JsonUtil.string2Obj(res,Map.class);
             if(map!=null&&(Integer)map.get("success")==1){
                 Map<String,Object> thread = (Map)map.get("thread");
-                String author = (String)thread.get("author");
+                String author = String.valueOf(thread.get("author"));
                 Long uid = Long.valueOf((Integer)thread.get("authorid"));
                 String subject = (String)thread.get("subject");
                 Map<String,Object> show = (Map)map.get("threadsortshow");

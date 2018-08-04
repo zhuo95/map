@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface PlaceRepository extends JpaRepository<Place,String> {
 
-    List<Place> findAllByLatitudeGreaterThanAndLatitudeLessThanAndLongitudeGreaterThanAndLongitudeLessThan(Double la1,Double la2, Double lo1, Double lo2);
+    List<Place> findAllByLatitudeGreaterThanAndLatitudeLessThanAndLongitudeGreaterThanAndLongitudeLessThanAndEventNumGreaterThan(Double la1,Double la2, Double lo1, Double lo2,int eventNum);
 
     //行锁，悲观锁
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)

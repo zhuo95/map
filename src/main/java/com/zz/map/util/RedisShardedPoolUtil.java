@@ -52,7 +52,7 @@ public class RedisShardedPoolUtil {
         try {
             result = jedis.expire(key,exTime);
         } catch (Exception e) {
-            log.error("set key:{}",key,e);
+            log.error("expire key:{}",key,e);
             RedisShardedPool.returnResource(jedis);
             return result;
         }
@@ -86,7 +86,7 @@ public class RedisShardedPoolUtil {
         try {
             result = jedis.del(key);
         } catch (Exception e) {
-            log.error("set key:{}",key,e);
+            log.error("del key:{}",key,e);
             RedisShardedPool.returnResource(jedis);
             return result;
         }

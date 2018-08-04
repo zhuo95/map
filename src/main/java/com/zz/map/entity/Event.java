@@ -36,6 +36,7 @@ public class Event {
 
     private Double latitude;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     //活动日期

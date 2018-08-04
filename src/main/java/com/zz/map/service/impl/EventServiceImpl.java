@@ -38,7 +38,7 @@ public class EventServiceImpl implements IEventService {
         Double loLow = longitude - Const.RADIUS;
         Double loHigh = longitude + Const.RADIUS;
 
-        List<Place> places = placeRepository.findAllByLatitudeGreaterThanAndLatitudeLessThanAndLongitudeGreaterThanAndLongitudeLessThan(laLow,laHigh,loLow,loHigh);
+        List<Place> places = placeRepository.findAllByLatitudeGreaterThanAndLatitudeLessThanAndLongitudeGreaterThanAndLongitudeLessThanAndEventNumGreaterThan(laLow,laHigh,loLow,loHigh,0);
 
         return ServerResponse.creatBySuccess(places);
     }
@@ -199,7 +199,7 @@ public class EventServiceImpl implements IEventService {
 
     //查找当前登录对象的发布信息
     public ServerResponse findInfo(Long userId){
-        List<Event> events = eventRepository.findAllByUserId(userId);
+        List<Event> events = eventRepository.findAllByUserIdAndStatus(userId,Const.EVENT_STATUS.OPEN);
         return ServerResponse.creatBySuccess(events);
     }
 

@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class CookieUtil {
     //一级域名下，二级域名能读到，同级的读不到
-    private final static String COOKIE_DOMAIN= "localhost";
-    private final static String COOKIE_NAME="auth";
+    private final static String COOKIE_DOMAIN= PropertyUtil.getProperty("COOKIE_DOMAIN");
+    private final static String COOKIE_NAME="MAP.FOGGYSTUDIO.COM_LOGIN";
     //写入cookie
     public static void writeLoginToken(HttpServletResponse response, String token){
         Cookie ck = new Cookie(COOKIE_NAME,token);

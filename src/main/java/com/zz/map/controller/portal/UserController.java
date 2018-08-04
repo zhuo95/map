@@ -66,8 +66,10 @@ public class UserController {
     @ResponseBody
     public ServerResponse logout( HttpServletResponse response, HttpServletRequest request){
         String loginToken = CookieUtil.readLoginToken(request);
-        CookieUtil.delLoginToken(request,response);
-        RedisShardedPoolUtil.del(loginToken);
+        if(StringUtils.isNotBlank(loginToken)){
+            CookieUtil.delLoginToken(request,response);
+            RedisShardedPoolUtil.del(loginToken);
+        }
         return ServerResponse.creatBySuccess("logout success");
     }
 
