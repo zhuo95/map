@@ -192,6 +192,9 @@ public class EventServiceImpl implements IEventService {
             RedisShardedPoolUtil.hset(event.getPlaceId(),String.valueOf(id),JsonUtil.obj2String(event));
             //更新过期时间
             RedisShardedPoolUtil.expire(event.getPlaceId(),Const.RedisCacheExTime.REDIS_EVENT_TIME); //一天
+        }else{
+            //关闭的要在redis中删除
+            RedisShardedPoolUtil.hdel(event.getPlaceId(),String.valueOf(event.getId()));
         }
         //存到数据库
         eventRepository.save(event);
