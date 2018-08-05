@@ -187,10 +187,12 @@ public class EventServiceImpl implements IEventService {
         //更新非空fields
         UpdateUtil.copyNullProperties(e,event);
         event.setUpdateTime(new Date());
-        //更新redis
-        RedisShardedPoolUtil.hset(event.getPlaceId(),String.valueOf(id),JsonUtil.obj2String(event));
-        //更新过期时间
-        RedisShardedPoolUtil.expire(event.getPlaceId(),Const.RedisCacheExTime.REDIS_EVENT_TIME); //一天
+        if(event.getStatus()==Const.EVENT_STATUS.OPEN){
+            //更新redis
+            RedisShardedPoolUtil.hset(event.getPlaceId(),String.valueOf(id),JsonUtil.obj2String(event));
+            //更新过期时间
+            RedisShardedPoolUtil.expire(event.getPlaceId(),Const.RedisCacheExTime.REDIS_EVENT_TIME); //一天
+        }
         //存到数据库
         eventRepository.save(event);
         return ServerResponse.creatBySuccess(event);
