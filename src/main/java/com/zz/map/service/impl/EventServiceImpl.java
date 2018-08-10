@@ -1,5 +1,6 @@
 package com.zz.map.service.impl;
 
+import com.google.common.collect.Lists;
 import com.zz.map.common.Const;
 import com.zz.map.common.ResponseCode;
 import com.zz.map.common.ServerResponse;
@@ -10,6 +11,7 @@ import com.zz.map.repository.EventRepository;
 import com.zz.map.repository.PlaceRepository;
 import com.zz.map.service.IEventService;
 import com.zz.map.util.*;
+import com.zz.map.vo.PlaceVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -40,7 +42,33 @@ public class EventServiceImpl implements IEventService {
 
         List<Place> places = placeRepository.findAllByLatitudeGreaterThanAndLatitudeLessThanAndLongitudeGreaterThanAndLongitudeLessThanAndEventNumGreaterThan(laLow,laHigh,loLow,loHigh,0);
 
-        return ServerResponse.creatBySuccess(places);
+        List<PlaceVo> res = Lists.newArrayList();
+        //find event for every palce
+        for(Place p : places){
+            String id = p.getId();
+            PlaceVo pv = new PlaceVo();
+            pv.setEventNum(p.getEventNum());
+            pv.setCreateTime(p.getCreateTime());
+            pv.setId(id);
+            pv.setLatitude(p.getLatitude());
+            pv.setLongitude(p.getLongitude());
+            pv.setPlaceName(p.getPlaceName());
+            pv.setUpdateTime(p.getUpdateTime());
+            //new event list
+
+            ServerResponse sr = getEventByPlaceId(id);
+            List<Event> events = (List<Event>)sr.getData();
+            List<String> eventTitles = Lists.newArrayList();
+            for(Event e : events){
+                String title = e.getTitle();
+                eventTitles.add(title);
+            }
+            pv.setEventTitles(eventTitles);
+            //放入res
+            res.add(pv);
+        }
+
+        return ServerResponse.creatBySuccess(res);
     }
 
     //提交event
