@@ -63,9 +63,26 @@ public class UserServiceImpl implements IUserService {
                 RedisShardedPoolUtil.del(username);
                 return ServerResponse.creatBySuccess(user);
             }else{
+                //密码错误，取远程api查看密码,看看是否是改了密码造成的
+                String res = rpcClient.send(username+","+password);
+                Map<String,Object> map = JsonUtil.string2Obj(res,Map.class);
+                if(map!=null) {
+                    if (map.get("success") != null) {
+                        if ((int) map.get("success") == 0) return ServerResponse.creatByErrorMessage((String) map.get("reason"));
+                        //登录成功,要更新本地数据库密码
+                        user.setPassword(MD5Util.MD5EncodeUtf8(password));
+                        user.setUpdateTime(new Date());
+                        user.setToken((String)map.get("token"));
+                        user.setAvatar("https://hellogwu.com/uc_server/avatar.php?uid="+user.getUid());
+                        userRepository.save(user);
+                        //del lock
+                        RedisShardedPoolUtil.del(username);
+                        return ServerResponse.creatBySuccess(user);
+                    }
+                }
                 //del lock
                 RedisShardedPoolUtil.del(username);
-                return ServerResponse.creatByErrorMessage("密码错误");
+                return ServerResponse.creatByErrorMessage("发生错误");
             }
         }
         //如果user为null说明本地没有
