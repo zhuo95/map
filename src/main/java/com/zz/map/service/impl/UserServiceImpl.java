@@ -9,6 +9,8 @@ import com.zz.map.repository.UserRepository;
 import com.zz.map.service.IUserService;
 import com.zz.map.util.JsonUtil;
 import com.zz.map.util.MD5Util;
+import com.zz.map.util.PropertyUtil;
+import com.zz.map.util.RedisShardedPoolUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,30 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     private UserRepository userRepository;
 
+    //做成锁，防止产生两个email相同的用户
     public ServerResponse<User> login(String username,String password){
+        long lockTimeout = Long.parseLong(PropertyUtil.getProperty("lock.timeout","5000"));
+        Long setnxResult = RedisShardedPoolUtil.setnx(username,String.valueOf(System.currentTimeMillis()+lockTimeout));
+        if(setnxResult!=null&&setnxResult.intValue()==1) {
+            //如果返回时1表示设置成功，获取到锁
+            return doLogin(username,password);
+        }else{
+            //没有获得分布式锁,继续判断时间戳
+            String lockValueStr = RedisShardedPoolUtil.get(username);
+            if(lockValueStr!=null&&System.currentTimeMillis() > Long.parseLong(lockValueStr)){
+                String res = RedisShardedPoolUtil.getSet(username,String.valueOf(System.currentTimeMillis()+lockTimeout));
+                if(res==null|| (res!=null&& StringUtils.equals(res,lockValueStr))) {
+                    //在getset返回时null，或者是原值的时候可以获取锁，表示没有被其他进程set
+                    return doLogin(username,password);
+                }
+            }
+        }
+        return ServerResponse.creatByErrorMessage("请稍后再试");
+    }
+
+    private ServerResponse<User> doLogin(String username,String password){
+        //设置锁过期时间
+        RedisShardedPoolUtil.expire(username,5);
         //首先先在本地查找
         User user = userRepository.findByEmail(username); //username 就是email
         if(user!=null){
@@ -34,8 +59,12 @@ public class UserServiceImpl implements IUserService {
                 user.setPassword(StringUtils.EMPTY);
                 String token = UUID.randomUUID().toString();
                 user.setToken(token);
+                //del lock
+                RedisShardedPoolUtil.del(username);
                 return ServerResponse.creatBySuccess(user);
             }else{
+                //del lock
+                RedisShardedPoolUtil.del(username);
                 return ServerResponse.creatByErrorMessage("密码错误");
             }
         }
@@ -63,11 +92,17 @@ public class UserServiceImpl implements IUserService {
                 user.setId(addedUser.getId());
                 user.setPassword(MD5Util.MD5EncodeUtf8(password));
                 userRepository.save(user);
+                //del lock
+                RedisShardedPoolUtil.del(username);
                 return ServerResponse.creatBySuccess(user);
             }else{
+                //del lock
+                RedisShardedPoolUtil.del(username);
                 return ServerResponse.creatByErrorMessage("发生错误");
             }
         }
+        //del lock
+        RedisShardedPoolUtil.del(username);
         return ServerResponse.creatByErrorMessage("发生错误");
     }
 
