@@ -7,7 +7,7 @@ public class Const {
 
     public static final String USER_NAME = "username";
 
-    public static final Double RADIUS = 0.06;
+    public static final Double RADIUS = 0.5;
 
     public interface RedisCacheExTime{
         int REDIS_SESSION_TIME = 60*30; //30分钟

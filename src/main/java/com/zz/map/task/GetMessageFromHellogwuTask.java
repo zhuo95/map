@@ -64,7 +64,7 @@ public class GetMessageFromHellogwuTask {
     private void getEvent(){
         //只抓取3页
         List<SellEvent> sells = new ArrayList<>();
-        for(int i=1;i<=3;i++){
+        for(int i=1;i<=4;i++){
             Map<String,String> argsMap = new HashMap<>();
             argsMap.put("sortid","5");
             argsMap.put("page",String.valueOf(i));
@@ -136,8 +136,8 @@ public class GetMessageFromHellogwuTask {
         RedisShardedPoolUtil.expire("Other",60*60*6);
     }
 
-//    public static void main(String[] args) {
-//        GetMessageFromHellogwuTask test = new GetMessageFromHellogwuTask();
-//        test.getEvent();
-//    }
+    public static void main(String[] args) {
+        GetMessageFromHellogwuTask test = new GetMessageFromHellogwuTask();
+        test.getEvent();
+    }
 }
