@@ -22,6 +22,10 @@ public class GetMessageFromHellogwuTask {
     @PreDestroy
     public void delLock(){
         RedisShardedPoolUtil.del(Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK); //释放分布式锁
+        RedisShardedPoolUtil.expire("Washington DC",60*60*6);
+        RedisShardedPoolUtil.expire("Maryland",60*60*6);
+        RedisShardedPoolUtil.expire("Virginia",60*60*6);
+        RedisShardedPoolUtil.expire("Other",60*60*6);
     }
 
     @Scheduled(cron = "0 0 */6 * * ?")
@@ -118,6 +122,7 @@ public class GetMessageFromHellogwuTask {
         RedisShardedPoolUtil.del("Washington DC");
         RedisShardedPoolUtil.del("Maryland");
         RedisShardedPoolUtil.del("Virginia");
+        RedisShardedPoolUtil.del("Other");
         //将sells存入redis 保存一天 第二天重新load
         for(SellEvent event : sells){
             String address = event.getAddress();
@@ -128,6 +133,7 @@ public class GetMessageFromHellogwuTask {
         RedisShardedPoolUtil.expire("Washington DC",60*60*6);
         RedisShardedPoolUtil.expire("Maryland",60*60*6);
         RedisShardedPoolUtil.expire("Virginia",60*60*6);
+        RedisShardedPoolUtil.expire("Other",60*60*6);
     }
 
 //    public static void main(String[] args) {
