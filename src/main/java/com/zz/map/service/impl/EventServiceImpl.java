@@ -33,6 +33,7 @@ public class EventServiceImpl implements IEventService {
     private EventRepository eventRepository;
 
     //获取当前地址周围的有事件的event
+    @Transactional
     public ServerResponse getByLatitudeAndLongitude(Double latitude, Double longitude){
         if(latitude==null||longitude==null) return ServerResponse.creatByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         Double laLow = latitude - Const.RADIUS;
@@ -58,6 +59,13 @@ public class EventServiceImpl implements IEventService {
 
             ServerResponse sr = getEventByPlaceId(id);
             List<Event> events = (List<Event>)sr.getData();
+            //更新place的eventNum
+            int numOfEvent = events.size();
+            Place place = placeRepository.getPlaceForUpdate(id);
+            place.setEventNum(numOfEvent);
+            place.setUpdateTime(new Date());
+            placeRepository.save(place);
+
             List<String> eventTitles = Lists.newArrayList();
             for(Event e : events){
                 String title = e.getTitle();
@@ -65,7 +73,7 @@ public class EventServiceImpl implements IEventService {
             }
             pv.setEventTitles(eventTitles);
             //放入res
-            res.add(pv);
+            if(numOfEvent>0) res.add(pv);
         }
 
         return ServerResponse.creatBySuccess(res);
@@ -146,7 +154,7 @@ public class EventServiceImpl implements IEventService {
         for(Event e : events){
             RedisShardedPoolUtil.hset(placeId,String.valueOf(e.getId()),JsonUtil.obj2String(e));
         }
-
+        RedisShardedPoolUtil.expire(placeId,Const.RedisCacheExTime.REDIS_EVENT_TIME); // 一天
         return ServerResponse.creatBySuccess(events);
     }
 

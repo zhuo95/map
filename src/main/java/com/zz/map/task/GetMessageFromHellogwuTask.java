@@ -136,8 +136,8 @@ public class GetMessageFromHellogwuTask {
         RedisShardedPoolUtil.expire("Other",60*60*6);
     }
 
-    public static void main(String[] args) {
-        GetMessageFromHellogwuTask test = new GetMessageFromHellogwuTask();
-        test.getEvent();
-    }
+//    public static void main(String[] args) {
+//        GetMessageFromHellogwuTask test = new GetMessageFromHellogwuTask();
+//        test.getEvent();
+//    }
 }
