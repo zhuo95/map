@@ -61,10 +61,12 @@ public class EventServiceImpl implements IEventService {
             List<Event> events = (List<Event>)sr.getData();
             //更新place的eventNum
             int numOfEvent = events.size();
-            Place place = placeRepository.getPlaceForUpdate(id);
-            place.setEventNum(numOfEvent);
-            place.setUpdateTime(new Date());
-            placeRepository.save(place);
+            if(numOfEvent!=p.getEventNum()){
+                Place place = placeRepository.getPlaceForUpdate(id);
+                place.setEventNum(numOfEvent);
+                place.setUpdateTime(new Date());
+                placeRepository.save(place);
+            }
 
             List<String> eventTitles = Lists.newArrayList();
             for(Event e : events){
